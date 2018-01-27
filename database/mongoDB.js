@@ -1,33 +1,64 @@
-var userOp = require('./model/userDatabase')
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost:27017/demoDB')
+var models = require('./models.js'); 
 
+var createUserModel = models.CreateUserModel;
+var createTransModel = models.CreateTransModel;
 
-exports.checkUser = function(username) {
+var userModel = createUserModel(mongoose);
+var transModel = createTransModel(mongoose);
+
+checkUser = function(username) {
   return new Promise((resolve, reject) => {
-    userOp.findOne({'username': username}, 'password', (err, data) => {
+    console.log("query user: " + username);
+    userModel.findOne({'username': username}, 'password', (err, data) => {
       if(err){
+        console.log("data query error");
         reject();
       }
       else{
-        //console.log(data)
         resolve(data.toObject().password);
       }
     });
   });
 }
 
-//function(req, res){
-//var record = new mongoOp();
-//var response = {};
-//record.username = req.body.username;
-//record.userPassword = req.body.password;
-//record.save(function(err){
-//  if(err){
-//    response = {"error" : true, "message" : "Error adding data"};
-//  }
-//  else{
-//    response = {"error" : true, "message" : "Data added"};
-//  }
-//  res.json(response);
-//
+addTrans = function(trans, username) {
+  console.log("output: addTrans for user: " + username);
 
-//module.exports = db;
+  return new Promise((resolve, reject) => {
+    new insertData = new transModel({ 'owner':username,
+                                      'data': trans.data,
+                                      'category': trans.category,
+                                      'description': trans.description,
+                                      'isShared': trans.isShared});
+    insertData.save(function(err, data){
+      if(err){
+        reject();
+      }
+      else{
+        resolve();
+      }
+    })
+  })
+}
+
+queryAllTrans = function(username) {
+  console.log("output: " + username);
+  return new Promise((resolve, reject) => {
+    transModel.find({'owner': username}, (err, data) => {
+      if(err){
+        console.log("query all trans for " + username + " failed");
+        reject();
+      }
+      else{
+        resolve(data);
+      }
+    })
+  })
+}
+
+module.exports = {
+  checkUser: checkUser,
+  queryData: queryData
+}
