@@ -27,11 +27,13 @@ addTrans = function(trans, username) {
   console.log("output: addTrans for user: " + username);
 
   return new Promise((resolve, reject) => {
-    new insertData = new transModel({ 'owner':username,
-                                      'data': trans.data,
-                                      'category': trans.category,
-                                      'description': trans.description,
-                                      'isShared': trans.isShared});
+    insertData = new transModel({ 'owner':username,
+                                  'data': trans.data,
+                                  'category': trans.category,
+                                  'description': trans.description,
+                                  'isShared': trans.isShared,
+                                  'amount' : trans.amount
+    });
     insertData.save(function(err, data){
       if(err){
         reject();
@@ -60,5 +62,6 @@ queryAllTrans = function(username) {
 
 module.exports = {
   checkUser: checkUser,
-  queryData: queryData
+  addTrans: addTrans,
+  queryAllTrans: queryAllTrans
 }
