@@ -2,7 +2,8 @@ createUserModel = function(mongoose){
   var Schema = mongoose.Schema;
   var userLoginSchema = new Schema({
     "username" : String,
-    "userPassword" : String
+    "userPassword" : String,
+    "aptID": String
   });
 
   var userModel = mongoose.model('userDatabase', userLoginSchema);
@@ -13,12 +14,13 @@ createUserModel = function(mongoose){
 createTransModel = function(mongoose){
   var Schema = mongoose.Schema;
   var transSchema = new Schema({
-    "data": Date,
+    "date": Date,
     "category": String,
     "description": String,
     "amount": Number,
     "isShared": Boolean,
-    "owner": String
+    "owner": String,
+    "aptID": String
   })
 
   // Getter
