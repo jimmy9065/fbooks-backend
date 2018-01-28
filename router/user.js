@@ -13,7 +13,6 @@ router.get('/getpass', function(req, res){
   res.status(200).send(base64url.encode(sencrypt));
 })
 
-
 router.get('/', function(req, res){
   let username = req.query.username;
   let decodedPassword = base64url.decode(req.query.password);
@@ -45,10 +44,10 @@ router.post('/', function(req, res){
   response = {"pass": true, "cookie": ''};
   res.status(200);
   db.checkUser(username)
-  .then((pass) =>{
+  .then((pass, aptID) =>{
     if(pass == password){
       response.pass = true;
-      response.cookie = decodedPassword;
+      response.cookie = username + '&' + aptID;
     }
     res.send(response);
   })

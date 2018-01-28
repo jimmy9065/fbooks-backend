@@ -20,4 +20,8 @@ app.use(cookieParser());
 
 app.use('/api', api);
 
+app.use(function(req, res, next){
+  res.status(404).send('Request not supported yet')
+})
+
 app.listen(8081);
