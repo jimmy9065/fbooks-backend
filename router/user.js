@@ -18,15 +18,25 @@ router.get('/', function(req, res){
   let decodedPassword = base64url.decode(req.query.password);
   let decryptPassword = CryptoJS.AES.decrypt(decodedPassword, keyStr);
   let password = decryptPassword.toString(CryptoJS.enc.Utf8);
+
+  console.log(username)
+  console.log(req.query.password)
  
   response = {"pass": false, "cookie": ''};
   res.status(200);
   db.checkUser(username)
-  .then((pass) =>{
-    if(pass == password){
+  .then((userRecord) =>{
+    if(userRecord.password == password){
+      console.log('password is correct')
       response.pass = true;
-      response.cookie = decodedPassword;
+      response.cookie = username + "&" + userRecord.aptID + "&";
     }
+    else{
+      console.log('password is not correct')
+      console.log(userRecord.password)
+      console.log(password)
+    }
+
     res.send(response);
   })
   .catch(() => {
@@ -35,25 +45,31 @@ router.get('/', function(req, res){
   })
 })
 
-router.post('/', function(req, res){
-  let username = req.body.username;
-  let decodedPassword = base64url.decode(req.body.password);
-  let password = CryptoJS.AES.decrypt(decodedPassword, keyStr)
-                         .toString(CryptoJS.enc.Utf8);
- 
-  response = {"pass": true, "cookie": ''};
-  res.status(200);
-  db.checkUser(username)
-  .then((pass, aptID) =>{
-    if(pass == password){
-      response.pass = true;
-      response.cookie = username + '&' + aptID;
-    }
-    res.send(response);
-  })
-  .catch(() => {
-    res.send(response);
-  })
-})
+//router.post('/', function(req, res){
+//  let username = req.body.username;
+//  let decodedPassword = base64url.decode(req.body.password);
+//  let password = CryptoJS.AES.decrypt(decodedPassword, keyStr)
+//                         .toString(CryptoJS.enc.Utf8);
+// 
+//  response = {"pass": true, "cookie": ''};
+//  res.status(200);
+//  db.checkUser(username)
+//  .then((pass, aptID) =>{
+//    if(pass == password){
+//      response.pass = true;
+//      response.cookie = username + '&' + aptID;
+//    }
+//    else{
+//      console.log('password is not correct')
+//      console.log(pass)
+//      console.log(password)
+//    }
+//    res.send(response);
+//  })
+//  .catch(() => {
+//    console.log('database has an error')
+//    res.send(response);
+//  })
+//})
 
 module.exports = router;

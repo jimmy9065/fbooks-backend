@@ -1,5 +1,18 @@
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/demoDB')
+const dbOptions = {
+  autoReconnect: true,
+  reconnectTries: Number.MAX_VALUE,
+  reconnectInterval: 1000
+}
+
+mongoose.connect('mongodb://localhost:27017/demoDB', dbOptions).then(
+  () => {
+    console.log("Database successfully connected");
+  },
+  err  => {
+    console.log("Can not connect to database")
+  })
+
 var models = require('./models.js'); 
 
 var createUserModel = models.CreateUserModel;
@@ -11,14 +24,15 @@ var transModel = createTransModel(mongoose);
 checkUser = function(username) {
   return new Promise((resolve, reject) => {
     console.log("query user: " + username);
-    userModel.findOne({'username': username}, 'password, aptID', (err, data) => {
+    userModel.findOne({'username': username}, (err, data) => {
       if(err){
         console.log("data query error");
         reject();
       }
       else{
         let result = data.toObject()
-        resolve(result.password, result.aptID);
+        console.log('found record')
+        resolve(data.toObject());
       }
     });
   });
