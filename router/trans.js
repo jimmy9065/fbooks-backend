@@ -1,6 +1,20 @@
 var express = require('express');
 var router = express.Router();
 var db = require('../database/mongoDB.js');
+var CryptoJS = require('crypto-js');
+
+var keyStr = "abcd";
+
+router.use(function(req, res, next){
+  if(req.cookies.BOOKSUID != undefined){
+    let decryptCookie = CryptoJS.AES.decrypt(req.cookies.BOOKSUID, keyStr);
+    req.cookies.BOOKSUID = decryptCookie.toString(CryptoJS.enc.Utf8);
+    next();
+  }
+  else{
+    res.sendStatus(400);
+  }
+})
 
 router.put('/insert', function(req, res){
   console.log(req.cookies.BOOKSUID);
