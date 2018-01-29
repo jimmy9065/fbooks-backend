@@ -32,7 +32,7 @@ router.get('/', function(req, res){
         console.log('password is correct')
         response.pass = true;
         let identity = username + "&" + userRecord.aptID + "&";
-        response.cookie = CryptoJS.AES.encrypt(identity,keyStr).toString(CryptoJS.enc.hex);
+        response.cookie = username + "@" + CryptoJS.AES.encrypt(identity, keyStr).toString(CryptoJS.enc.base64);
       }
       else{
         console.log('username and password is not match')

@@ -7,13 +7,21 @@ var keyStr = "abcd";
 
 router.use(function(req, res, next){
   if(req.cookies.BOOKSUID != undefined){
-    let decryptCookie = CryptoJS.AES.decrypt(req.cookies.BOOKSUID, keyStr);
-    req.cookies.BOOKSUID = decryptCookie.toString(CryptoJS.enc.Utf8);
-    next();
+    let cookie = req.cookies.BOOKSUID;
+    if(/[a-zA-Z0-9]+@[a-zA-Z0-9\+\/]+/i.test(cookie)){
+      console.log('pattern exists');
+      matches = /@([a-zA-Z0-9\+\/=]+)/ig.exec(cookie)
+      console.log('extracted: ' + matches[1])
+      let decryptCookie = CryptoJS.AES.decrypt(matches[1], keyStr);
+      req.cookies.BOOKSUID = decryptCookie.toString(CryptoJS.enc.Utf8);
+      console.log('new cookie:')
+      console.log(req.cookies.BOOKSUID)
+      next();
+    }
+    return;
   }
-  else{
-    res.sendStatus(400);
-  }
+
+  res.sendStatus(400);
 })
 
 router.put('/insert', function(req, res){

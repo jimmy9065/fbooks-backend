@@ -25,15 +25,19 @@ checkUser = function(username) {
   return new Promise((resolve, reject) => {
     console.log("query user: " + username);
     userModel.findOne({'username': username}, (err, data) => {
-      if(err || !data){
+      if(err){
         console.log("data query error");
         reject();
       }
       else{
-        let result = data.toObject()
-        console.log('found record')
-        console.log(data)
-        resolve(data.toObject());
+        if(data){
+          let result = data.toObject()
+          console.log('found record')
+          console.log(data)
+          resolve(data.toObject());
+        }
+        else
+          resolve(null);
       }
     });
   });
