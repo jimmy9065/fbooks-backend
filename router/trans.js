@@ -18,9 +18,12 @@ router.use(function(req, res, next){
       console.log(req.cookies.BOOKSUID)
       next();
     }
+    console.log("cookie is not valid")
+    res.sendStatus(400);
     return;
   }
 
+  console.log("request don't have a cookie")
   res.sendStatus(400);
 })
 
@@ -62,10 +65,12 @@ router.get('/allTrans', function(req, res){
       res.status(200).send(data);
     })
     .catch((err) => {
+      console.log('databse query error');
       res.sendStatus(400);
     });
   }
   else{
+    console.log('cookie is not correct');
     res.sendStatus(400);
   }
 })
