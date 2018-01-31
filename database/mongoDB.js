@@ -5,7 +5,7 @@ const dbOptions = {
   reconnectInterval: 1000
 }
 
-mongoose.connect('mongodb://localhost:27017/demoDB', dbOptions).then(
+mongoose.connect('mongodb://jimmy9065.ddns.net:8083/demoDB', dbOptions).then(
   () => {
     console.log("Database successfully connected");
   },
@@ -70,7 +70,7 @@ addTrans = function(trans, username, aptID) {
 queryAllTrans = function(username, aptID) {
   console.log("output: queryAllTrans for user: " + username + " at " + aptID);
   return new Promise((resolve, reject) => {
-    transModel.find({'owner': username, 'aptID': aptID}, (err, data) => {
+    transModel.find({'aptID': aptID}, (err, data) => {
       if(err){
         console.log("query all trans failed");
         reject();

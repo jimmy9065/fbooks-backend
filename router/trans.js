@@ -17,13 +17,16 @@ router.use(function(req, res, next){
       console.log('new cookie:')
       console.log(req.cookies.BOOKSUID)
       next();
+      return;
     }
-    console.log("cookie is not valid")
-    res.sendStatus(400);
-    return;
+    else
+      console.log("cookie is not valid")
+  }
+  else{
+    console.log("request don't have a cookie")
+    console.log(req.cookies)
   }
 
-  console.log("request don't have a cookie")
   res.sendStatus(400);
 })
 
@@ -61,6 +64,7 @@ router.get('/allTrans', function(req, res){
     username = matches[0];
     aptID = matches[1];
 
+    console.log("start query")
     db.queryAllTrans(username, aptID).then((data) => {
       res.status(200).send(data);
     })

@@ -23,16 +23,6 @@ createTransModel = function(mongoose){
     "aptID": String
   })
 
-  // Getter
-  transSchema.path('amount').get(function(num) {
-    return (num / 100).toFixed(2);
-  });
-
-  // Setter
-  transSchema.path('amount').set(function(num) {
-    return num * 100;
-  });
-
   var transModel = mongoose.model('transDatabase', transSchema);
 
   return transModel
