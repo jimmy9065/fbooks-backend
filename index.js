@@ -8,7 +8,7 @@ var app = express();
 var api = require('./router/api')
 
 var corsOptions = {
-  origin: true,
+  origin: /localhost:[0-9]+/,
   optionsSuccessStatus: 200,
   credentials: true
 }
