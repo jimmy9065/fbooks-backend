@@ -26,7 +26,7 @@ checkUser = function(username) {
     console.log("query user: " + username);
     userModel.findOne({'username': username}, (err, data) => {
       if(err){
-        console.log("data query error");
+        console.log("checkuser query error");
         reject();
       }
       else{
@@ -38,6 +38,54 @@ checkUser = function(username) {
         else
           resolve(null);
       }
+    });
+  });
+}
+
+queryUsers = function(aptID) {
+  return new Promise((resolve, reject) => {
+    console.log("query usernames from apt:" + aptID);
+    userModel.find({'aptID':aptID},{'username':1, '_id':false}, (err, data) => {
+      if(err){
+        console.log("username query failed");
+        reject();
+      }
+      else{
+        if(data){
+          console.log('found usernames')
+          console.log(data)
+          resolve(data);
+        }
+        else
+          resolve(null);
+      }
+    });
+  });
+}
+
+queryUserSpend = function(aptID) {
+  return new Promise((resolve, reject) => {
+    console.log("query total expense for atp: " + aptID);
+    transModel.aggregate(
+      [
+        {$match:{aptID:"528"}},
+       {$group:{_id:'$owner', total: {$sum:'$amount'}}}
+      ], (err, data) => {
+        if(err){
+          console.log("query expense sum failed");
+          reject();
+        }
+        else{
+          if(data){
+            console.log('calculated roommate expense sum');
+            console.log(data);
+            resolve(data);
+          }
+          else{
+            console.log('data is empty')
+            resolve(null);
+          }
+        }
     });
   });
 }
@@ -168,6 +216,8 @@ module.exports = {
   queryAllTrans: queryAllTrans,
   queryTopTrans: queryTopTrans,
   queryOneTran: queryOneTran,
+  queryUsers:queryUsers,
+  queryUserSpend:queryUserSpend,
   editTrans: editTrans,
   deleteTrans: deleteTrans
 }

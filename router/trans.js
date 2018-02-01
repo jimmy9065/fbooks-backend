@@ -114,6 +114,40 @@ router.get('/onetran/:rid', function(req, res) {
   });
 })
 
+router.get('/due', function(req, res) {
+  let cookie = req.cookies.BOOKSUID;
+  let matches = cookie.match(/([^&]+)/ig);
+  console.log(matches);
+  if(cookie && matches && matches[0] && matches[1]){
+    let username = matches[0];
+    let aptID = matches[1];
+
+    console.log("query due for user:" + username + " at " + aptID);
+    db.queryUserSpend(aptID).then((data) => {
+      let userExpense = null;
+      let total = 0;
+      let ret = 0;
+      if(data){
+        console.log(data)
+        for(idx in data){
+          if(data[idx]._id==username)
+            userExpense =  data[idx].total;
+          total += data[idx].total;
+        }
+        console.log(total)
+        ret = total / data.length - userExpense;
+        console.log(ret)
+      }
+      console.log('send')
+      res.status(200).send({'due':ret});
+    })
+    .catch((err) => {
+      console.log('due query error')
+      res.sendStatus(404);
+    })
+  }
+})
+
 router.put('/update/:rid', function(req, res){
   let recordID = req.params.rid;
   let content = req.body;
