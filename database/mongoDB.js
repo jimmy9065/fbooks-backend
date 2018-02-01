@@ -31,7 +31,6 @@ checkUser = function(username) {
       }
       else{
         if(data){
-          let result = data.toObject()
           console.log('found record')
           console.log(data)
           resolve(data.toObject());
@@ -67,10 +66,45 @@ addTrans = function(trans, username, aptID) {
   })
 }
 
+//queryAllTrans = function(username, aptID) {
+//  console.log("output: queryAllTrans for user: " + username + " at " + aptID);
+//  return new Promise((resolve, reject) => {
+//    transModel.find({'aptID': aptID}, (err, data) => {
+//      if(err){
+//        console.log("query all trans failed");
+//        reject();
+//      }
+//      else{
+//        resolve(data);
+//      }
+//    })
+//  })
+//}
+
 queryAllTrans = function(username, aptID) {
   console.log("output: queryAllTrans for user: " + username + " at " + aptID);
   return new Promise((resolve, reject) => {
-    transModel.find({'aptID': aptID}, (err, data) => {
+    transModel.find({'aptID': aptID})
+    .sort('-date')
+    .exec((err, data) => {
+      if(err){
+        console.log("query all trans failed");
+        reject();
+      }
+      else{
+        resolve(data);
+      }
+    })
+  })
+}
+
+queryTopTrans = function(username, aptID) {
+  console.log("output: queryTopTrans for user: " + username + " at " + aptID);
+  return new Promise((resolve, reject) => {
+    transModel.find({'aptID': aptID})
+    .limit(25)
+    .sort('-date')
+    .exec((err, data) => {
       if(err){
         console.log("query all trans failed");
         reject();
@@ -103,7 +137,7 @@ editTrans = function(recordID, updates) {
   return new Promise((resolve, reject) => {
     transModel.findByIdAndUpdate(recordID, updates, (err, data) => {
       if(err){
-        console.log("delete trans " + recordID + " failed");
+        console.log("edit trans " + recordID + " failed");
         reject();
       }
       else{
@@ -132,6 +166,7 @@ module.exports = {
   checkUser: checkUser,
   addTrans: addTrans,
   queryAllTrans: queryAllTrans,
+  queryTopTrans: queryTopTrans,
   queryOneTran: queryOneTran,
   editTrans: editTrans,
   deleteTrans: deleteTrans
