@@ -26,12 +26,10 @@ router.use(function(req, res, next){
     console.log("request don't have a cookie")
     console.log(req.cookies)
   }
-
   res.sendStatus(400);
 })
 
 router.put('/insert', function(req, res){
-  console.log(req.cookies.BOOKSUID);
   console.log(req.body);
 
   let cookie = req.cookies.BOOKSUID;
@@ -79,6 +77,33 @@ router.get('/allTrans', function(req, res){
   }
 })
 
+router.get('/RecentTrans', function(req, res){
+  let cookie = req.cookies.BOOKSUID;
+  matches = cookie.match(/([^&]+)/ig);
+  console.log(matches);
+  if(cookie && matches && matches[0] && matches[1]){
+    username = matches[0];
+    aptID = matches[1];
+
+    console.log("start query")
+    db.queryTopTrans(username, aptID).then((data) => {
+      var ret = {};
+      var temp = data;
+      ret.trans = temp
+      ret.due=10;
+      res.status(200).send(ret);
+    })
+    .catch((err) => {
+      console.log('databse query error');
+      res.sendStatus(400);
+    });
+  }
+  else{
+    console.log('cookie is not correct');
+    res.sendStatus(400);
+  }
+})
+
 router.get('/onetran/:rid', function(req, res) {
   let recordID = req.params.rid;
   db.queryOneTran(recordID).then((data) => {
@@ -92,6 +117,7 @@ router.get('/onetran/:rid', function(req, res) {
 router.put('/update/:rid', function(req, res){
   let recordID = req.params.rid;
   let content = req.body;
+  console.log("Update records:" + recordID);
   db.editTrans(recordID, content).then((data) => {
     res.status(200).send(data);
   })
@@ -101,8 +127,9 @@ router.put('/update/:rid', function(req, res){
 })
 
 router.delete('/del/:rid', function(req, res){
-  let RecordID = req.params.rid;
-  db.deleteTrans(RecordID).then((data) => {
+  let recordID = req.params.rid;
+  console.log("Delete record:" + recordID);
+  db.deleteTrans(recordID).then((data) => {
     res.sendStatus(202);
   })
   .catch((err) => {
