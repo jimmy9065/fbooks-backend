@@ -39,8 +39,9 @@ router.put('/insert', function(req, res){
     username = matches[0];
     aptID = matches[1];
     db.addTrans(req.body, username, aptID)
-    .then(() => {
-      res.sendStatus(201);
+    .then((_id) => {
+      console.log('inserted record id: ' + _id);
+      res.status(201).send({'_id':_id});
     })
     .catch((err) => {
       console.log('error: put request:')
@@ -87,11 +88,7 @@ router.get('/RecentTrans', function(req, res){
 
     console.log("start query")
     db.queryTopTrans(username, aptID).then((data) => {
-      var ret = {};
-      var temp = data;
-      ret.trans = temp
-      ret.due=10;
-      res.status(200).send(ret);
+      res.status(200).send(data);
     })
     .catch((err) => {
       console.log('databse query error');

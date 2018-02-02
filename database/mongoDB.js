@@ -108,7 +108,7 @@ addTrans = function(trans, username, aptID) {
         reject(err);
       }
       else{
-        resolve();
+        resolve(insertData._id);
       }
     })
   })
