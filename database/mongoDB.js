@@ -64,11 +64,11 @@ queryUsers = function(aptID) {
 }
 
 queryUserSpend = function(aptID) {
+  console.log("query total expense for atp: " + aptID);
   return new Promise((resolve, reject) => {
-    console.log("query total expense for atp: " + aptID);
     transModel.aggregate(
       [
-        {$match:{aptID:"528"}},
+        {$match:{aptID:aptID}},
        {$group:{_id:'$owner', total: {$sum:'$amount'}}}
       ], (err, data) => {
         if(err){
@@ -88,6 +88,35 @@ queryUserSpend = function(aptID) {
         }
     });
   });
+}
+
+queryUserDist = function(username, aptID) {
+  console.log("query user expense dist for user:" +username + " at atp: " + aptID);
+  return new Promise((resolve, reject) => {
+    transModel.aggregate(
+      [
+        {$match:{aptID:aptID, owner: username, category: {$ne: 'payment'}}},
+        {$group:{_id:'$category', amount: {$sum:"$amount"}}}
+      ], (err, data) => {
+        if(err){
+          console.log("query user dist failed");
+          reject();
+        }
+        else{
+          if(data){
+            console.log('calculated user expense dist');
+            console.log(data);
+            resolve(data);
+          }
+          else{
+            console.log('data is empty')
+            resolve(null);
+          }
+        }
+      }
+    )
+  })
+    
 }
 
 addTrans = function(trans, username, aptID) {
@@ -218,6 +247,7 @@ module.exports = {
   queryOneTran: queryOneTran,
   queryUsers:queryUsers,
   queryUserSpend:queryUserSpend,
+  queryUserDist:queryUserDist,
   editTrans: editTrans,
   deleteTrans: deleteTrans
 }

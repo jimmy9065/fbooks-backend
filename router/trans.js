@@ -136,11 +136,32 @@ router.get('/due', function(req, res) {
         console.log(ret)
       }
       console.log('send')
-      res.status(200).send({'due':ret});
+      res.status(200).send({'due':ret, 'details':data});
     })
     .catch((err) => {
       console.log('due query error')
-      res.sendStatus(404);
+      res.sendStatus(400);
+    })
+  }
+})
+
+router.get('/dist', function(req, res) {
+  let cookie = req.cookies.BOOKSUID;
+  let matches = cookie.match(/([^&]+)/ig);
+  console.log(matches);
+  if(cookie && matches && matches[0] && matches[1]){
+    let username = matches[0];
+    let aptID = matches[1];
+
+    console.log("query distribution for user:" + username + " at " + aptID);
+    db.queryUserDist(username, aptID).then((data) => {
+
+      console.log('send')
+      res.status(200).send({data});
+    })
+    .catch((err) => {
+      console.log('due query error')
+      res.sendStatus(400);
     })
   }
 })
