@@ -139,16 +139,18 @@ router.get('/due', function(req, res) {
         console.log('user expense for user : ' + userExpense);
       }
 
+      userDue = userExpense;
+
       db.queryUserPay(aptID, username).then((data) => {
-        if(data){
-          userDue = userExpense - data[0].amount;
+        if(data.length > 0){
+          userDue -= data[0].amount;
         }
         console.log(userDue);
         console.log('send');
         res.status(200).send({'due':userDue, 'details':usersDist});
       })
       .catch((err) => {
-        console.log('payment query error');
+        console.log('payment query error:' + err);
         res.sendStatus(400);
       })
 
