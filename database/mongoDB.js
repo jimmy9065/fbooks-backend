@@ -251,10 +251,10 @@ editTrans = function(recordID, updates) {
   })
 }
 
-deleteTrans = function(recordID) {
+deleteTrans = function(recordID, username, aptID) {
   console.log("output: delete Trans for id=" + recordID);
   return new Promise((resolve, reject) => {
-    transModel.deleteOne({_id: recordID}, (err, data) => {
+    transModel.deleteOne({_id: recordID, owner: username, aptID: aptID}, (err, data) => {
       if(err){
         console.log("delete trans " + recordID + " failed");
         reject();
