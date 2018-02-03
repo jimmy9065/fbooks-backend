@@ -63,13 +63,13 @@ queryUsers = function(aptID) {
   });
 }
 
-queryUserSpend = function(aptID) {
+queryUsersSpend = function(aptID) {
   console.log("query total expense for atp: " + aptID);
   return new Promise((resolve, reject) => {
     transModel.aggregate(
       [
-        {$match:{aptID:aptID}},
-       {$group:{_id:'$owner', total: {$sum:'$amount'}}}
+        {$match:{aptID:aptID, category: {$ne:'payment'}}},
+        {$group:{_id:'$owner', total: {$sum:'$amount'}}},
       ], (err, data) => {
         if(err){
           console.log("query expense sum failed");
@@ -82,7 +82,34 @@ queryUserSpend = function(aptID) {
             resolve(data);
           }
           else{
-            console.log('data is empty')
+            console.log('data is empty');
+            resolve(null);
+          }
+        }
+    });
+  });
+}
+
+queryUserPay = function(aptID, username) {
+  console.log("query total pay for atp: " + aptID);
+  return new Promise((resolve, reject) => {
+    transModel.aggregate(
+      [
+        {$match:{aptID:aptID, owner:username, category: 'payment'}},
+        {$group:{_id:"$owner", amount:{$sum:'$amount'}}},
+      ], (err, data) => {
+        if(err){
+          console.log("query expense sum failed");
+          reject();
+        }
+        else{
+          if(data){
+            console.log('calculated user payment');
+            console.log(data);
+            resolve(data);
+          }
+          else{
+            console.log('data is empty');
             resolve(null);
           }
         }
@@ -246,7 +273,8 @@ module.exports = {
   queryTopTrans: queryTopTrans,
   queryOneTran: queryOneTran,
   queryUsers:queryUsers,
-  queryUserSpend:queryUserSpend,
+  queryUsersSpend:queryUsersSpend,
+  queryUserPay:queryUserPay,
   queryUserDist:queryUserDist,
   editTrans: editTrans,
   deleteTrans: deleteTrans

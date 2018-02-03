@@ -118,28 +118,43 @@ router.get('/due', function(req, res) {
   if(cookie && matches && matches[0] && matches[1]){
     let username = matches[0];
     let aptID = matches[1];
+    
+    let userExpense = 0;
+    let userDue = 0;
+    let usersDist = null;
 
     console.log("query due for user:" + username + " at " + aptID);
-    db.queryUserSpend(aptID).then((data) => {
-      let userExpense = null;
+
+    db.queryUsersSpend(aptID).then((data) => {
       let total = 0;
-      let ret = 0;
       if(data){
-        console.log(data)
+        usersDist = data;
         for(idx in data){
           if(data[idx]._id==username)
             userExpense =  data[idx].total;
           total += data[idx].total;
         }
-        console.log(total)
-        ret = total / data.length - userExpense;
-        console.log(ret)
+        console.log('toatal for users : ' + total)
+        userExpense = total / data.length - userExpense;
+        console.log('user expense for user : ' + userExpense);
       }
-      console.log('send')
-      res.status(200).send({'due':ret, 'details':data});
+
+      db.queryUserPay(aptID, username).then((data) => {
+        if(data){
+          userDue = userExpense - data[0].amount;
+        }
+        console.log(userDue);
+        console.log('send');
+        res.status(200).send({'due':userDue, 'details':usersDist});
+      })
+      .catch((err) => {
+        console.log('payment query error');
+        res.sendStatus(400);
+      })
+
     })
     .catch((err) => {
-      console.log('due query error')
+      console.log('expense query error')
       res.sendStatus(400);
     })
   }
@@ -155,7 +170,6 @@ router.get('/dist', function(req, res) {
 
     console.log("query distribution for user:" + username + " at " + aptID);
     db.queryUserDist(username, aptID).then((data) => {
-
       console.log('send')
       res.status(200).send({data});
     })
