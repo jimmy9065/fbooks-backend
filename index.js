@@ -8,7 +8,12 @@ var app = express();
 var api = require('./router/api')
 
 var corsOptions = {
-  origin: /localhost:[0-9]+/,
+  //origin: true,
+  origin: [
+    /jimmy9065.ddns.net[:0-9]*/,
+    /[[a-z].]*jimmyliu.info[:0-9]*/,
+    /localhost:8080/,
+  ],
   optionsSuccessStatus: 200,
   credentials: true
 }

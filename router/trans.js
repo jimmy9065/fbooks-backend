@@ -109,7 +109,7 @@ router.get('/due', function(req, res) {
       console.log('user expense for user : ' + userExpense);
     }
 
-    userDue = userExpense;
+    userDue = userExpense / 2;
 
     db.queryUserPay(aptID, username).then((data) => {
       if(data.length > 0){
@@ -163,7 +163,7 @@ router.put('/update/:rid', function(req, res){
   let recordID = req.params.rid;
   let content = req.body;
   console.log("Update record:" + recordID + " for user:" + username + " at apt:" + aptID);
-  db.editTrans(recordID, username, aptID, content).then((data) => {
+  db.editTrans(recordID, content).then((data) => {
     res.status(200).send(data);
   })
   .catch((err) => {

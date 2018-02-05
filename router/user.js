@@ -15,6 +15,7 @@ router.get('/getpass', function(req, res){
 
 router.get('/', function(req, res){
   response = {"pass": false, "cookie": ''};
+  
   if(req.query.username && req.query.password){
     let username = req.query.username;
     let decodedPassword = base64url.decode(req.query.password);
