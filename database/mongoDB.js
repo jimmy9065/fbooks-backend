@@ -46,8 +46,8 @@ queryUsers = function(aptID) {
   return new Promise((resolve, reject) => {
     console.log("query usernames from apt:" + aptID);
     userModel.find({'aptID':aptID},{'username':1, '_id':false}, (err, data) => {
-      if(err){
-        console.log("username query failed");
+      if(err || data.length == 0){
+        console.log("username query failed or empty");
         reject();
       }
       else{

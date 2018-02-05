@@ -95,38 +95,55 @@ router.get('/due', function(req, res) {
 
   console.log("query due for user:" + username + " at " + aptID);
 
-  db.queryUsersSpend(aptID).then((data) => {
-    let total = 0;
-    if(data){
-      usersDist = data;
-      for(idx in data){
-        if(data[idx]._id==username)
-          userExpense =  data[idx].total;
-        total += data[idx].total;
-      }
-      console.log('toatal for users : ' + total)
-      userExpense = total / data.length - userExpense;
-      console.log('user expense for user : ' + userExpense);
-    }
+  db.queryUsers(aptID).then((users) =>{
+    db.queryUsersSpend(aptID).then((userspends) => {
+      db.queryUserPay(aptID, username).then((userpayments) => {
+        let nUsers = users.length;
+        let totalExpense = 0, userExpense = 0;
+        let userPay = 0;
+        let due = 0;
+        let tempUserSpends = userspends
 
-    userDue = userExpense / 2;
+        console.log('users');
+        console.log(users);
+        
+        console.log('userspends');
+        console.log(userspends);
 
-    db.queryUserPay(aptID, username).then((data) => {
-      if(data.length > 0){
-        userDue -= data[0].amount;
-      }
-      console.log(userDue);
-      console.log('send');
-      res.status(200).send({'due':userDue, 'details':usersDist});
+        console.log('userpayments');
+        console.log(userpayments);
+
+        for(idx in userspends){
+          if(userspends[idx]._id == username)
+            userExpense = userspends[idx].total;
+          totalExpense += userspends[idx].total;
+        }
+
+        console.log('s-nUsers:' + nUsers);
+        console.log('s-totalExpense:' + totalExpense);
+        console.log('s-userExpense:' + userExpense);
+
+        due = totalExpense / nUsers - userExpense;
+
+        if(userpayments.length > 0){
+          due -= userpayments[0].amount;
+          console.log('s-payment exists:' + userspends[0].amount);
+        }
+
+        console.log('s-query is done');
+        console.log('s-user due:' + due);
+        res.status(200).send({'due':due, 'details':tempUserSpends});
+
+      })
+      .catch('query user payment failed');
     })
-    .catch((err) => {
-      console.log('payment query error:' + err);
+    .catch(() => {
+      console.log('query users spend failed');
       res.sendStatus(400);
     })
-
   })
-  .catch((err) => {
-    console.log('expense query error')
+  .catch(() => {
+    console.log('query users failed');
     res.sendStatus(400);
   })
 })
