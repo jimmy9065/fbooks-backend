@@ -24,7 +24,8 @@ router.get('/check', function(req, res) {
   console.log(req.cookies)
   if(req.cookies.BOOKSUID != undefined){
     client.get(req.cookies.BOOKSUID, function(err, reply) {
-      if(err || reply==undefined){
+      if(err || reply==undefined || req.ip != JSON.parse(reply).ip){
+        console.log(req.ip + " , " + JSON.parse(reply).ip)
         res.sendStatus(400);
         console.log("query token failed");
       }
@@ -70,10 +71,9 @@ router.get('/', function(req, res){
 
       if(userRecord && decodedGUID == GUID){
         console.log('password is correct')
-        let ip = req.ip.match(/:([0-9\.]+)$/)[1];
         client.set(req.query.token,
           JSON.stringify({
-            'ip':ip,
+            'ip':req.ip,
             'username':userRecord.username,
             'aptID':userRecord.aptID}));
         response.pass = true;

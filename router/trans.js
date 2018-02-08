@@ -16,12 +16,12 @@ router.use(function(req, res, next){
   console.log("New quest:")
   if(req.cookies.BOOKSUID != undefined){
     client.get(req.cookies.BOOKSUID, function(err, reply) {
-      if(err || reply==undefined){
+      if(err || reply==undefined || req.ip != JSON.parse(reply).ip){
         res.sendStatus(400);
         console.log("query token failed");
       }
       else{
-        console.log("query existed in redis");
+        console.log("query: cookie existed in redis");
         res.status(202);
         userInfo = JSON.parse(reply);
         req.body.username = userInfo.username;
