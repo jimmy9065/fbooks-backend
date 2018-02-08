@@ -12,7 +12,7 @@ var corsOptions = {
   origin: [
     /jimmy9065.ddns.net[:0-9]*/,
     /[[a-z].]*jimmyliu.info[:0-9]*/,
-    /localhost:8080/,
+    'http://localhost:8080',
   ],
   optionsSuccessStatus: 200,
   credentials: true

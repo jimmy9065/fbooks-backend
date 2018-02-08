@@ -15,25 +15,34 @@ router.get('/getpass', function(req, res){
 
 router.get('/', function(req, res){
   response = {"pass": false, "cookie": ''};
+  console.log(req.headers.guid)
   
-  if(req.query.username && req.query.password){
-    let username = req.query.username;
-    let decodedPassword = base64url.decode(req.query.password);
-    let decryptPassword = CryptoJS.AES.decrypt(decodedPassword, keyStr);
-    let password = decryptPassword.toString(CryptoJS.enc.Utf8);
+  if(req.query.username && req.query.token && req.headers.guid){
+    console.log('username: ' + req.query.username);
+    console.log('token: ' + req.query.token);
+    console.log('guid: ' + req.headers.guid)
 
-    console.log(username)
-    console.log(req.query.password)
+    let GUID = req.headers.guid;
+    let username = req.query.username;
    
     res.status(200);
     db.checkUser(username)
     .then((userRecord) =>{
-      console.log('userRecord:' + userRecord)
-      if(userRecord && userRecord.password == password){
+      console.log('userRecord:' + userRecord.username + ", " + userRecord.password);
+      
+      let decodedPassword = base64url.decode(req.query.token);
+      let decryptPassword = CryptoJS.AES.decrypt(decodedPassword, userRecord.password);
+      let decodedGUID = decryptPassword.toString(CryptoJS.enc.Utf8);
+
+      console.log('real GUID:' + GUID);
+      console.log('deco GUID:' + decodedGUID);
+
+      if(userRecord && decodedGUID == GUID){
         console.log('password is correct')
         response.pass = true;
         let identity = username + "&" + userRecord.aptID + "&";
         response.cookie = username + "@" + CryptoJS.AES.encrypt(identity, keyStr).toString(CryptoJS.enc.base64);
+        //res.append('Set-Cookie', 'BOOKUID=' + response.cookie + ';DOMAIN=.jimmy9065.ddns.net;MAX-AGE=86400')
       }
       else{
         console.log('username and password is not match')
