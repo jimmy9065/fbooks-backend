@@ -3,15 +3,43 @@ var router = express.Router();
 var CryptoJS = require('crypto-js');
 var base64url = require('base64url');
 var db = require('../database/mongoDB.js');
+var redis = require('redis');
+let client = redis.createClient();
+
+client.on('error', function(err) {
+  console.log('redis error:' + err);
+})
 
 var keyStr = "abcd";
+
 
 router.get('/getpass', function(req, res){
   let encrypt = CryptoJS.AES.encrypt('123456',keyStr);
   let sencrypt = encrypt.toString(CryptoJS.enc.hex);
 
   res.status(200).send(base64url.encode(sencrypt));
-})
+});
+
+router.get('/check', function(req, res) {
+  console.log(req.cookies)
+  if(req.cookies.BOOKSUID != undefined){
+    client.get(req.cookies.BOOKSUID, function(err, reply) {
+      if(err || reply==undefined){
+        res.sendStatus(400);
+        console.log("query token failed");
+      }
+      else{
+        console.log("query existed in redis");
+        res.status(202);
+        res.send({"pass":true, "username":JSON.parse(reply).username});
+      }
+    });
+  } 
+  else{
+    console.log("check cookie not exists")
+    res.sendStatus(404);
+  }
+});
 
 router.get('/', function(req, res){
   response = {"pass": false, "cookie": ''};
@@ -28,7 +56,10 @@ router.get('/', function(req, res){
     res.status(200);
     db.checkUser(username)
     .then((userRecord) =>{
-      console.log('userRecord:' + userRecord.username + ", " + userRecord.password);
+      console.log('userRecord:' +
+        userRecord.username + ", " +
+        userRecord.password + ", " +
+        userRecord.aptID);
       
       let decodedPassword = base64url.decode(req.query.token);
       let decryptPassword = CryptoJS.AES.decrypt(decodedPassword, userRecord.password);
@@ -39,9 +70,14 @@ router.get('/', function(req, res){
 
       if(userRecord && decodedGUID == GUID){
         console.log('password is correct')
+        let ip = req.ip.match(/:([0-9\.]+)$/)[1];
+        client.set(req.query.token,
+          JSON.stringify({
+            'ip':ip,
+            'username':userRecord.username,
+            'aptID':userRecord.aptID}));
         response.pass = true;
-        let identity = username + "&" + userRecord.aptID + "&";
-        response.cookie = username + "@" + CryptoJS.AES.encrypt(identity, keyStr).toString(CryptoJS.enc.base64);
+        response.cookie = req.query.token;
         //res.append('Set-Cookie', 'BOOKUID=' + response.cookie + ';DOMAIN=.jimmy9065.ddns.net;MAX-AGE=86400')
       }
       else{
@@ -59,32 +95,5 @@ router.get('/', function(req, res){
     res.send(response);
   }
 })
-
-//router.post('/', function(req, res){
-//  let username = req.body.username;
-//  let decodedPassword = base64url.decode(req.body.password);
-//  let password = CryptoJS.AES.decrypt(decodedPassword, keyStr)
-//                         .toString(CryptoJS.enc.Utf8);
-// 
-//  response = {"pass": true, "cookie": ''};
-//  res.status(200);
-//  db.checkUser(username)
-//  .then((pass, aptID) =>{
-//    if(pass == password){
-//      response.pass = true;
-//      response.cookie = username + '&' + aptID;
-//    }
-//    else{
-//      console.log('password is not correct')
-//      console.log(pass)
-//      console.log(password)
-//    }
-//    res.send(response);
-//  })
-//  .catch(() => {
-//    console.log('database has an error')
-//    res.send(response);
-//  })
-//})
 
 module.exports = router;

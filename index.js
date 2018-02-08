@@ -23,6 +23,8 @@ app.use(bodyParser.urlencoded({ extended: false}));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
+app.enable('trust proxy');
+
 app.use('/api', api);
 
 app.use(function(req, res, next){

@@ -2,6 +2,12 @@ var express = require('express');
 var router = express.Router();
 var db = require('../database/mongoDB.js');
 var CryptoJS = require('crypto-js');
+var redis = require('redis');
+let client = redis.createClient();
+
+client.on('error', function(err) {
+  console.log('redis error on trans:' + err);
+});
 
 var keyStr = "abcd";
 
@@ -9,35 +15,26 @@ router.use(function(req, res, next){
   console.log("*****************************************")
   console.log("New quest:")
   if(req.cookies.BOOKSUID != undefined){
-    let rawCookie = req.cookies.BOOKSUID;
-    if(/[a-zA-Z0-9]+@[a-zA-Z0-9\+\/]+/i.test(rawCookie)){
-      console.log('pattern exists');
-      matches = /@([a-zA-Z0-9\+\/=]+)/ig.exec(rawCookie)
-      console.log('extracted: ' + matches[1])
-      let decryptCookie = CryptoJS.AES.decrypt(matches[1], keyStr);
-      let cookie = decryptCookie.toString(CryptoJS.enc.Utf8);
-
-      console.log('new cookie assigned:')
-      console.log(req.cookies.BOOKSUID)
-      console.log("extract cookies")
-      matches = cookie.match(/([^&]+)/ig);
-      if(cookie && matches && matches[0] && matches[1]){
-        req.body.username = matches[0];
-        req.body.aptID = matches[1];
-        next();
-        return;
+    client.get(req.cookies.BOOKSUID, function(err, reply) {
+      if(err || reply==undefined){
+        res.sendStatus(400);
+        console.log("query token failed");
       }
       else{
-        console.log('cookie is not correct')
+        console.log("query existed in redis");
+        res.status(202);
+        userInfo = JSON.parse(reply);
+        req.body.username = userInfo.username;
+        req.body.aptID = userInfo.aptID;
+        next();
       }
-    }
-    console.log("cookie is not valid")
+    });
   }
   else{
     console.log("request doesn't have a cookie")
     console.log(req.cookies)
+    res.sendStatus(404);
   }
-  res.sendStatus(400);
 })
 
 router.put('/insert', function(req, res){
