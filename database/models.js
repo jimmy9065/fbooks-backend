@@ -6,7 +6,7 @@ createUserModel = function(mongoose){
     "aptID": String
   });
 
-  var userModel = mongoose.model('userDatabase', userLoginSchema);
+  var userModel = mongoose.model('user', userLoginSchema);
 
   return userModel
 }
@@ -23,7 +23,7 @@ createTransModel = function(mongoose){
     "aptID": String
   })
 
-  var transModel = mongoose.model('transDatabase', transSchema);
+  var transModel = mongoose.model('item', transSchema);
 
   return transModel
 }

@@ -5,7 +5,7 @@ const dbOptions = {
   reconnectInterval: 1000
 }
 
-mongoose.connect('mongodb://jimmy9065.ddns.net:8083/demoDB', dbOptions).then(
+mongoose.connect('mongodb://127.0.0.1/app', dbOptions).then(
   () => {
     console.log("Database successfully connected");
   },
@@ -27,16 +27,18 @@ checkUser = function(username) {
     userModel.findOne({'username': username}, (err, data) => {
       if(err){
         console.log("checkuser query error");
-        reject();
+        reject(err);
       }
       else{
         if(data){
-          console.log('found record')
-          console.log(data)
+          console.log('found record');
+          console.log(data);
           resolve(data.toObject());
         }
-        else
+        else{
+          console.log('no record');
           resolve(null);
+        }
       }
     });
   });
