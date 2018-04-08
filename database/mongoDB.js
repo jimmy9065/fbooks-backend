@@ -90,12 +90,12 @@ queryUsersSpend = function(aptID) {
   });
 }
 
-queryUserPay = function(aptID, username) {
+queryUserPay = function(aptID) {
   console.log("query total pay for user: " + username);
   return new Promise((resolve, reject) => {
     transModel.aggregate(
       [
-        {$match:{aptID:aptID, owner:username, category: 'payment'}},
+        {$match:{aptID:aptID, category: 'payment'}},
         {$group:{_id:"$owner", amount:{$sum:'$amount'}}},
       ], (err, data) => {
         if(err){

@@ -9,8 +9,6 @@ client.on('error', function(err) {
   console.log('redis error on trans:' + err);
 });
 
-var keyStr = "abcd";
-
 router.use(function(req, res, next){
   console.log("*****************************************")
   console.log("New quest:")
@@ -94,7 +92,7 @@ router.get('/due', function(req, res) {
 
   db.queryUsers(aptID).then((users) =>{
     db.queryUsersSpend(aptID).then((userspends) => {
-      db.queryUserPay(aptID, username).then((userpayments) => {
+      db.queryUserPay(aptID).then((userspayments) => {
         let nUsers = users.length;
         let totalExpense = 0, userExpense = 0;
         let userPay = 0;
@@ -122,9 +120,12 @@ router.get('/due', function(req, res) {
 
         due = totalExpense / nUsers - userExpense;
 
-        if(userpayments.length > 0){
-          due -= userpayments[0].amount;
-          console.log('s-payment exists:' + userspends[0].amount);
+        for(idx in userspayments){
+          if(userspends[idx]._id == username){
+            due -= userspends[idx].amount;
+          }else{
+            due += userspends[idx].amount / (nUsers - 1);
+          }
         }
 
         console.log('s-query is done');
