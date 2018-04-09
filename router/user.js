@@ -87,12 +87,12 @@ router.get('/', function(req, res){
     })
     .catch(() => {
       console.log('catch error')
-      res.send(response);
+      res.status(500).send(response);
     })
   }
   else{
     console.log('empty username and password')
-    res.send(response);
+    res.status(500).send(response);
   }
 })
 

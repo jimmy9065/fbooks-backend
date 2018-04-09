@@ -92,12 +92,12 @@ router.get('/due', function(req, res) {
 
   db.queryUsers(aptID).then((users) =>{
     db.queryUsersSpend(aptID).then((userspends) => {
-      db.queryUserPay(aptID).then((userspayments) => {
+      db.queryUserPay(aptID, username).then((userspayments) => {
         let nUsers = users.length;
         let totalExpense = 0, userExpense = 0;
         let userPay = 0;
         let due = 0;
-        let tempUserSpends = userspends
+        let tempUserSpends = userspends;
 
         console.log('users');
         console.log(users);
@@ -106,7 +106,7 @@ router.get('/due', function(req, res) {
         console.log(userspends);
 
         console.log('userpayments');
-        console.log(userpayments);
+        console.log(userspayments);
 
         for(idx in userspends){
           if(userspends[idx]._id == username)
@@ -121,10 +121,11 @@ router.get('/due', function(req, res) {
         due = totalExpense / nUsers - userExpense;
 
         for(idx in userspayments){
-          if(userspends[idx]._id == username){
-            due -= userspends[idx].amount;
+          console.log(idx, '  for user', userspayments[idx]._id, ' due amount:',userspayments[idx].amount);
+          if(userspayments[idx]._id == username){
+            due -= userspayments[idx].amount;
           }else{
-            due += userspends[idx].amount / (nUsers - 1);
+            due += (userspayments[idx].amount / (nUsers - 1));
           }
         }
 
@@ -132,18 +133,18 @@ router.get('/due', function(req, res) {
         console.log('s-user due:' + due);
         res.status(200).send({'due':due, 'details':tempUserSpends});
 
-      })
-      .catch('query user payment failed');
-    })
-    .catch(() => {
+      }).catch(err => {
+        console.log('query user payment failed');
+        res.sendStatus(400);
+      });
+    }).catch(err => {
       console.log('query users spend failed');
       res.sendStatus(400);
-    })
-  })
-  .catch(() => {
+    });
+  }).catch(err => {
     console.log('query users failed');
     res.sendStatus(400);
-  })
+  });
 })
 
 router.get('/dist', function(req, res) {

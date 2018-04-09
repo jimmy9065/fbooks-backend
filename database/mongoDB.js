@@ -92,7 +92,7 @@ queryUsersSpend = function(aptID) {
   });
 }
 
-queryUserPay = function(aptID) {
+queryUserPay = function(aptID, username) {
   console.log("query total pay for user: " + username);
   return new Promise((resolve, reject) => {
     transModel.aggregate(
